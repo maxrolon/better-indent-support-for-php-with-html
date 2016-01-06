@@ -25,12 +25,25 @@ function! GetPhpHtmlIndent(lnum)
     let html_ind = HtmlIndentGet(a:lnum)
   endif
   let php_ind = GetPhpIndent()
-  " priority one for php indent script
+
+  echo "php indent ".php_ind.", html_ind ".html_ind
+
   if php_ind > -1
+    if getline(a:lnum) =~ "<"
+      return -1
+    endif
+
+    if html_ind > 0 && php_ind == 0
+      let l:opening_tag = search('<?','b')
+      if l:opening_tag+1 == v:lnum
+        return html_ind
+      endif
+    endif
+
     return php_ind
   endif
   if html_ind > -1
-    if getline(a:num) =~ "^<?" && (0< searchpair('<?', '', '?>', 'nWb')
+    if getline(a:lnum) =~ "^<?" && (0< searchpair('<?', '', '?>', 'nWb')
           \ || 0 < searchpair('<?', '', '?>', 'nW'))
       return -1
     endif
